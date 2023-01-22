@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Services;
+namespace JiraRestApi\Auth;
 
 
 use Illuminate\Contracts\Support\Arrayable;
