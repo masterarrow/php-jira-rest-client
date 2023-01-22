@@ -11,9 +11,6 @@
 [![Monthly Downloads](https://poser.pugx.org/lesstif/php-jira-rest-client/d/monthly)](https://packagist.org/packages/lesstif/php-jira-rest-client)
 [![Daily Downloads](https://poser.pugx.org/lesstif/php-jira-rest-client/d/daily)](https://packagist.org/packages/lesstif/php-jira-rest-client)
 
-# On-Premise only
-If you want to interact with Jira cloud instead of On-Premise(Server, Data Center), [check out this repository](https://github.com/lesstif/php-JiraCloud-RESTAPI).
-
 # Requirements
 
 - PHP >= 8.0
@@ -28,18 +25,11 @@ If you want to interact with Jira cloud instead of On-Premise(Server, Data Cente
    curl -sS https://getcomposer.org/installer | php
    ```
 
-2. Next, run the Composer command to install the latest version of php jira rest client.
+2. Next, run the Composer command to install the php jira rest client.
    ``` sh
-   php composer.phar require lesstif/php-jira-rest-client
+   php composer.phar require masterarrow/php-jira-rest-client
    ```
-    or add the following to your composer.json file.
-   ```json
-   {
-       "require": {
-           "lesstif/php-jira-rest-client": "^5.0"
-       }
-   }
-   ```
+    or add it manualy to your composer.json file.
 
 3. Then run Composer's install or update commands to complete installation. 
 
@@ -86,6 +76,14 @@ PROXY_USER='proxy-username'
 PROXY_PASSWORD='proxy-password'
 ```
 
+For OAuth 2.0 add the following to .env on your project root.
+
+```sh
+JIRA_HOST='https://api.atlassian.com/ex/jira/'
+JIRA_CLIENT_ID='your_clien_id'
+JIRA_SECRET='your_clien_secret'
+```
+
 **Important Note:**
 As of March 15, 2018, in accordance to the [Atlassian REST API Policy](https://developer.atlassian.com/platform/marketplace/atlassian-rest-api-policy/), Basic auth with password to be deprecated.
 Instead of password, you should using [API token](https://confluence.atlassian.com/cloud/api-tokens-938839638.html).
@@ -128,6 +126,83 @@ $iss = new IssueService(new ArrayConfiguration(
                'proxyPassword' => 'proxy-password',
           ]
    ));
+```
+
+## OAuth 2.0
+
+1. Use Auth2Service to perform outh dance.
+
+```php
+use JiraRestApi\Auth\Auth2Service;
+
+$url = 'http://your_website/callback-url';
+
+$scopes = ['offline_access', 'read:me', 'read:jira-work'];
+
+$this->authService = new JiraAuthService(env('JIRA_CLIENT_ID'), env('JIRA_SECRET'), $url, $scopes);
+
+$this->authService->authorizationUrl('unique_state_identifier');
+
+// Redirect user to Jira authentication page
+header('Location: ' . $authUrl);
+exit;
+```
+
+2. At your callback url.
+
+```php
+try {
+    $data = $this->authService->getAccessTokens($params['code']);
+    
+    var_dump(data);	// cloudId, accessToken, refreshToken, expires
+} catch (League\OAuth2\Client\Provider\Exception\IdentityProviderException $e) {
+    print('Error Occured! ' . $e->getMessage());
+}
+```
+
+3. Get issue.
+
+```php
+use JiraRestApi\Configuration\ArrayConfiguration;
+use JiraRestApi\Issue\IssueService;
+
+try {
+    $authParameters = $this->authService->getAuthParams();
+
+    $iss = new IssueService(new ArrayConfiguration([
+	'jiraHost' => env('JIRA_HOST') . $authParameters['cloudId'],
+	'useTokenBasedAuth' => true,
+	'personalAccessToken' => $authParameters['accessToken'],
+    ]));
+            
+    $issue = $issueService->get('TEST-867');
+	
+    var_dump($issue->fields);
+} catch (JiraRestApi\JiraException $e) {
+    print('Error Occured! ' . $e->getMessage());
+}
+```
+
+To refresh access token.
+
+```php
+try {
+    $data = $this->authService->refreshAccessTokens(env('JIRA_CLIENT_ID'), env('JIRA_SECRET'), 'refresh_token');
+
+    var_dump(data);	// accessToken, refreshToken, expires
+} catch (JiraRestApi\JiraException $e) {
+    print('Error Occured! ' . $e->getMessage());
+}
+```
+
+To set authentication parameters (in case you need it).
+
+```php
+$this->authService->setAuthParameters([
+    'cloudId' => 'your_client_id';
+    'refresh_token' => 'refresh_token',
+    'expires_in' => 'token_expiration_timestamp'
+]);
 ```
 
 # Usage
