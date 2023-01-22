@@ -12,7 +12,7 @@ use League\OAuth2\Client\Token\AccessToken;
 use JiraRestApi\JiraException;
 use Mrjoops\OAuth2\Client\Provider\Jira;
 
-class JiraAuthService extends Jira
+class Auth2Service extends Jira
 {
     /**
      * @var string
