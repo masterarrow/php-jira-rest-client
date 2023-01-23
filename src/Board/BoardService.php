@@ -5,6 +5,7 @@ namespace JiraRestApi\Board;
 use JiraRestApi\Configuration\ConfigurationInterface;
 use JiraRestApi\Epic\Epic;
 use JiraRestApi\Issue\AgileIssue;
+use JiraRestApi\Project\Project;
 use JiraRestApi\Sprint\Sprint;
 use Psr\Log\LoggerInterface;
 
