@@ -139,7 +139,7 @@ $url = 'http://your_website/callback-url';
 
 $scopes = ['offline_access', 'read:me', 'read:jira-work'];
 
-$this->authService = new JiraAuthService(env('JIRA_CLIENT_ID'), env('JIRA_SECRET'), $url, $scopes);
+$this->authService = new Auth2Service(env('JIRA_CLIENT_ID'), env('JIRA_SECRET'), $url, $scopes);
 
 $this->authService->authorizationUrl('unique_state_identifier');
 
