@@ -161,4 +161,23 @@ class BoardService extends \JiraRestApi\JiraClient
             return null;
         }
     }
+    
+    /**
+     * @return \ArrayObject|null
+     */
+    public function getBoardСonfiguration($id, $paramArray = []): ?\ArrayObject
+    {
+        $json = $this->exec($this->uri.'/'.$id.'/configuration'.$this->toHttpQueryParameter($paramArray), null);
+
+        try {
+            return $this->json_mapper->mapArray(
+                json_decode($json, false, 512, $this->getJsonOptions()),
+                new \ArrayObject()
+            );
+        } catch (\JsonException $exception) {
+            $this->log->error("Response cannot be decoded from json\nException: {$exception->getMessage()}");
+
+            return null;
+        }
+    }
 }
