@@ -141,4 +141,24 @@ class BoardService extends \JiraRestApi\JiraClient
             return null;
         }
     }
+
+    /**
+     * @return \ArrayObject|null
+     */
+    public function getBoardProjects($id, $paramArray = []): ?\ArrayObject
+    {
+        $json = $this->exec($this->uri.'/'.$id.'/project'.$this->toHttpQueryParameter($paramArray), null);
+
+        try {
+            return $this->json_mapper->mapArray(
+                json_decode($json, false, 512, $this->getJsonOptions()),
+                new \ArrayObject(),
+                AgileIssue::class
+            );
+        } catch (\JsonException $exception) {
+            $this->log->error("Response cannot be decoded from json\nException: {$exception->getMessage()}");
+
+            return null;
+        }
+    }
 }
