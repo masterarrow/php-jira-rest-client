@@ -151,9 +151,8 @@ class BoardService extends \JiraRestApi\JiraClient
 
         try {
             return $this->json_mapper->mapArray(
-                json_decode($json, false, 512, $this->getJsonOptions()),
-                new \ArrayObject(),
-                AgileIssue::class
+                json_decode($json, false),
+                new \ArrayObject()
             );
         } catch (\JsonException $exception) {
             $this->log->error("Response cannot be decoded from json\nException: {$exception->getMessage()}");
@@ -161,7 +160,7 @@ class BoardService extends \JiraRestApi\JiraClient
             return null;
         }
     }
-    
+
     /**
      * @return \ArrayObject|null
      */
@@ -171,7 +170,7 @@ class BoardService extends \JiraRestApi\JiraClient
 
         try {
             return $this->json_mapper->mapArray(
-                json_decode($json, false, 512, $this->getJsonOptions()),
+                json_decode($json, false),
                 new \ArrayObject()
             );
         } catch (\JsonException $exception) {
