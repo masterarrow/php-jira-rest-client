@@ -145,7 +145,7 @@ class Auth2Service extends Jira
     {
         $response = Http::accept('application/json')
             ->withToken($this->token->getToken())
-            ->get($this->getRefreshTokenUrl() . '/accessible-resources');
+            ->get('https://api.atlassian.com/oauth/token/accessible-resources');
 
         if ($response->status() === 200) {
             return json_decode($response->body(), true);
