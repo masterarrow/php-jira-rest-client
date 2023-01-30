@@ -134,6 +134,25 @@ class Auth2Service extends Jira
             throw new JiraException('Cannot get a new access token', $response->status());
         }
     }
+    
+    /**
+     * Get accessible resources
+     *
+     * @return array
+     * @throws JiraException
+     */
+    public function accessibleResources()
+    {
+        $response = Http::accept('application/json')
+            ->withToken($this->token->getToken())
+            ->get($this->getRefreshTokenUrl());
+
+        if ($response->status() === 200) {
+            return json_decode($response->body(), true);
+        } else {
+            throw new JiraException('Cannot get a new access token', $response->status());
+        }
+    }
 
     /**
      * @return string
